@@ -1,5 +1,7 @@
 package cn.hustxq;
 
+import org.apache.log4j.Logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,6 +13,8 @@ import java.util.Properties;
  * Hello world!
  */
 public class App {
+    private static final Logger logger = Logger.getLogger(App.class);
+
     private static void help() {
         System.out.println("# Usage: \n"
                 + "\t java -jar svnhelper.jar d:\\statsvn(统计生成如2017-10.html文件的父目录) \n"
@@ -47,22 +51,22 @@ public class App {
             config.setUrl(url);
             config.setUser(user);
             config.setPassword(password);
-            System.out.println("配置信息读取中...");
+            logger.info("配置信息读取中...");
 //            System.out.println(config);
             //  2. get record
             Worker worker = new Worker();
             Collection<File> collection = worker.getFiles(srcDirPath);
-            System.out.println("文件分析和统计中...");
+            logger.info("文件分析和统计中...");
             List<Record> list = worker.deal(collection);
 //              3. insert into db
             DBHelper helper = DBHelper.getInstance();
-            helper.insert(config,list);
+            helper.insert(config, list);
         } catch (IOException e) {
 //            e.printStackTrace();
-            System.out.println(e.getMessage());
-        }catch (Exception e){
+            logger.error(e.getMessage());
+        } catch (Exception e) {
 //            System.out.println(e.getMessage());
-            System.out.println("请准确填写配置信息!");
+            logger.error("请准确填写配置信息!");
         }
     }
 }

@@ -1,6 +1,7 @@
 package cn.hustxq;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -17,6 +18,8 @@ import java.util.List;
  * @Date 2017/11/14 15:16
  */
 public class Worker {
+    private static final Logger logger = Logger.getLogger(Worker.class);
+
     public static void main(String[] args) {
 //        System.out.println(((Elements)null).text());
         Worker worker = new Worker();
@@ -38,7 +41,7 @@ public class Worker {
         helper.insert(50,list);*/
     }
 
-    public List<Record> deal(Collection<File> collection){
+    public List<Record> deal(Collection<File> collection) {
         List<Record> list = new ArrayList<Record>();
         for (File file : collection) {
             if (targetFile(file)) {
@@ -61,9 +64,11 @@ public class Worker {
                         list.add(record);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 } catch (Exception e) {
-                    e.printStackTrace();
+//                    e.printStackTrace();
+                    logger.error(e.getMessage());
                 }
             }
         }
@@ -73,8 +78,8 @@ public class Worker {
     public Collection<File> getFiles(String srcDirPath) {
         //获取所有html文件
         File file = new File(srcDirPath);
-        if (!file.exists()){
-            System.out.println("目录不存在!");
+        if (!file.exists()) {
+            logger.info("目录不存在!");
             System.exit(-1);
         }
         Collection<File> collection = FileUtils.listFiles(file, new String[]{"html"}, true);
@@ -84,12 +89,13 @@ public class Worker {
         }*/
         return collection;
     }
-    private boolean targetFile(File file){
+
+    private boolean targetFile(File file) {
         String name = file.getName();
 //        System.out.println(name);
-        if ("commitlog.html".equals(name)){
+        if ("commitlog.html".equals(name)) {
             return true;
-        }else if (name.matches("^\\d{4}\\D\\d{2}.html")){
+        } else if (name.matches("^\\d{4}\\D\\d{2}.html")) {
             return true;
         }
         return false;

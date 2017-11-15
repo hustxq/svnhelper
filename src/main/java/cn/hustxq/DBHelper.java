@@ -5,6 +5,8 @@ package cn.hustxq;
  * @Date 2017/11/15 8:59
  */
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.sql.*;
 import java.text.DateFormat;
@@ -14,6 +16,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class DBHelper {
+    private static final Logger logger = Logger.getLogger(DBHelper.class);
+
     public static void main(String[] args) {
         int batchSize = 1000;
         int insertCount = 1000;
@@ -24,7 +28,7 @@ public class DBHelper {
             pro.load(App.class.getResourceAsStream("/config.properties"));
         } catch (IOException e) {
 //            e.printStackTrace();
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
         DBConfig config = new DBConfig();
         String tableName = pro.getProperty("systemName").trim();
@@ -47,11 +51,11 @@ public class DBHelper {
         try {
             //调用Class.forName()方法加载驱动程序
             Class.forName("com.mysql.jdbc.Driver");
-//            System.out.println("成功加载MySQL驱动！");
+            logger.info("成功加载MySQL驱动！");
         } catch (ClassNotFoundException e1) {
 //            e1.printStackTrace();
-            System.out.println(e1.getMessage());
-            System.out.println("找不到MySQL驱动!");
+            logger.error(e1.getMessage());
+            logger.error("找不到MySQL驱动!");
         }
     }
 
@@ -66,8 +70,8 @@ public class DBHelper {
             doBatchedInsert(100, config, list);
         } catch (SQLException e) {
 //            e.printStackTrace();
-            System.out.println(e.getMessage());
-            System.out.println("[[异常]]:SQL出错!");
+            logger.error(e.getMessage());
+            logger.error("[[异常]]:SQL出错!");
         }
 //        long end = System.currentTimeMillis();
 //        System.out.println("rewriteBatchedStatements:" + (end - start) + "ms");
@@ -82,8 +86,8 @@ public class DBHelper {
 //            System.out.print("成功连接到数据库！");
         } catch (SQLException e) {
 //            e.printStackTrace();
-            System.out.println(e.getMessage());
-            System.out.println("[[异常]]:请检查数据库配置信息!");
+            logger.error(e.getMessage());
+            logger.error("[[异常]]:请检查数据库配置信息!");
             return;
         }
 
@@ -117,7 +121,7 @@ public class DBHelper {
 //        System.out.println(date);
         int count = 0;
         if (list != null && list.size() > 0) {
-            PreparedStatement preparedStatement = connection.prepareStatement("insert into "+config.getTable()+" (date,author,revision,changes) values (?,?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("insert into " + config.getTable() + " (date,author,revision,changes) values (?,?,?,?)");
             for (int i = 0; i < list.size(); i++) {
                 Record record = list.get(i);
                 if (date != null && compare_date(date, record.getDate()) >= 0)
@@ -134,12 +138,12 @@ public class DBHelper {
             }
             preparedStatement.executeBatch();
         }
-        if (count>0){
-            System.out.println("新增记录"+count+"行.");
-        }else {
-            System.out.println("暂未新增记录");
+        if (count > 0) {
+            logger.info("新增记录" + count + "行.");
+        } else {
+            logger.info("暂未新增记录");
         }
-        System.out.println("Finished!");
+        logger.info("Finished!");
         connection.close();
     }
 
@@ -158,8 +162,7 @@ public class DBHelper {
                 return 0;
             }
         } catch (Exception exception) {
-//            exception.printStackTrace();
-            System.out.println(exception.getMessage());
+            logger.error(exception.getMessage());
         }
         return 0;
     }
